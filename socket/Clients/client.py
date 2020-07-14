@@ -11,4 +11,7 @@ while True:
 
     from_financial_server = client.recv(10000).decode('utf-8')
     print (from_financial_server)
+
+    from_financial_server = client.recv(10000).decode('utf-8')
+    print (from_financial_server)
     client.close()

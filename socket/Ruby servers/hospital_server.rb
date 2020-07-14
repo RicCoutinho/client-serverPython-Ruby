@@ -4,7 +4,7 @@
 require 'socket'
 
 server = TCPServer.open(5000) # Abre socket em escuta na porta 4000
-matriculas = %w[A A N N]
+matriculas = %w[A A N N N]
 
 loop do # o servidor nunca morre, fica sempre executando
   client = server.accept # aceita conexao do cliente
