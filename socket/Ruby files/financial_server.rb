@@ -4,24 +4,36 @@
 require 'socket'
 
 server = TCPServer.open(4000) # Abre socket em escuta na porta 4000
-matriculas = { '001' => 'P', '002' => 'P', '003' => 'D', '004' => 'P',
-               '005' => 'P', '006' => 'D', '007' => 'D', '008' => 'P',
-               '009' => 'D', '010' => 'P' }
+matriculas = %w[P P D D]
+loop do
+  client = server.accept
+  id = client.recvfrom(10_000).first.to_i - 1
+  puts "Matrícula número: #{id.to_i + 1} recebida com sucesso."
 
-loop do # o servidor nunca morre, fica sempre executando
-  client = server.accept # aceita conexao do cliente
-  id = client.recvfrom(10_000).first
-  puts "Matrícula número: #{id} recebida com sucesso."
+  hospital_server = TCPSocket.open('localhost', 5000)
+  hospital_server.puts id
 
-  if !matriculas.include?(id)
+  hospital_answer = hospital_server.recvfrom(10_000)
+  char_answer = hospital_answer.first.split
+  puts "esse eh o retorno #{char_answer}"
+
+  if char_answer.nil?
     client.puts "Matrícula: '#{id}' não existe na base."
 
-  elsif matriculas[id.to_s] == 'P'
-    client.puts 'Financeiro OK.
-Entrada liberada.'
+  elsif char_answer == 'N'
+    client.puts 'Passar no departamento médico.
+    Entrada bloqueada.'
 
-  elsif matriculas[id.to_s] == 'D'
-    client.puts 'Passar no setor financeiro.
-Entrada bloqueada'
+  elsif char_answer == 'A'
+    client.puts 'Departamento médico OK.'
+
+    if matriculas[id.to_i] == 'P'
+      client.puts 'Financeiro OK.
+      Entrada liberada.'
+
+    elsif matriculas[id.to_i] == 'D'
+      client.puts 'Passar no setor financeiro.
+      Entrada bloqueada'
+    end
   end
 end
